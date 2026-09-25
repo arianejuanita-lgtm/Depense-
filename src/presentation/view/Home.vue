@@ -1,3 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Logo from '../common/commonView/Logo.vue';
+</script>
 
-<template></template>
+<template>
+    <div>
+        
+    </div>
+</template>
