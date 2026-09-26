@@ -11,6 +11,7 @@ const globalFilterStore = useGlobalFilter();
 
 <template>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-3">
+        
         <div v-for="exp in globalFilterStore.expenses" :key="exp.id">
            <ExpItem :item="exp" @click="$emit('select', exp.id)" /> 
         </div>

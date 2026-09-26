@@ -1,4 +1,4 @@
-import { useExpense } from "@/presentation/view/expense/store/UseExpense";
+import { useExpense, type DatePeriod } from "@/presentation/view/expense/store/UseExpense";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
@@ -17,6 +17,12 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
 
     const label = ref<string>('');
     const date = ref<string[]>([]);
+    
+    const selectedPeriod = ref<DatePeriod>('all');
+
+    function setPeriod(period: DatePeriod) {
+        selectedPeriod.value = period;
+    }
 
     const calculatedMaxAmount = computed(() => {
         if (expenseStore.expenses.length === 0) return 0;
@@ -45,6 +51,32 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
             results = results.filter(exp => date.value.includes(exp.date));
         }
 
+        if (selectedPeriod.value !== 'all') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            results = results.filter(exp => {
+                const expenseDate = new Date(exp.date);
+                expenseDate.setHours(0, 0, 0, 0);
+
+                const diffTime = today.getTime() - expenseDate.getTime();
+                const diffDays = diffTime / (1000 * 3600 * 24);
+
+                switch (selectedPeriod.value) {
+                    case 'today':
+                        return diffDays === 0;
+                    case '7days':
+                        return diffDays >= 0 && diffDays <= 7;
+                    case '30days':
+                        return diffDays >= 0 && diffDays <= 30;
+                    case '365days':
+                        return diffDays >= 0 && diffDays <= 365;
+                    default:
+                        return true;
+                }
+            });
+        }
+
         return results;
     });
 
@@ -55,6 +87,8 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
         calculatedMaxAmount, 
         label,
         date,
-        expenses:finalExpense
+        selectedPeriod,
+        setPeriod,
+        expenses: finalExpense
     };
 });
