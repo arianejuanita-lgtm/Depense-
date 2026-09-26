@@ -22,7 +22,7 @@ export class ExpenseRepository implements IExpenseRepository {
 
     addExpense(expense: IExpense): IExpense {
         const expenses = this.getExpenses();
-        expenses.push(expense);
+        expenses.unshift(expense);
         this.saveToStorage(expenses);
         return expense;
     }
