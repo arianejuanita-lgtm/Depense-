@@ -20,14 +20,14 @@ defineProps<{
                 </AvatarFallback>
             </Avatar>
             
-            <div class="flex flex-col truncate leading-none">
-                <p class="font-inter text-[9px] text-texte dark:text-gray-300 font-medium truncate">
-                    {{ category.label }}
-                </p>
-                <p class="font-poppins font-bold text-[10px] text-bleu-fon dark:text-white truncate">
-                    {{ Number(amount).toFixed(0) }}
-                </p>
-            </div>
+           <div class="flex flex-col truncate gap-0.5">
+    <p class="font-inter text-[9px] text-texte dark:text-gray-300 font-medium truncate">
+        {{ category.label }}
+    </p>
+    <p class="font-poppins font-bold text-[10px] text-bleu-fon dark:text-white truncate">
+        {{ Number(amount).toFixed(0) }} Fcfa
+    </p>
+</div>
             
         </div>
     </Card>
