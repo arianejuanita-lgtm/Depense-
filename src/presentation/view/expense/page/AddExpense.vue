@@ -40,7 +40,7 @@ const expenseSchema = toTypedSchema(
   z.object({
     label: z.string().min(1, { message: 'Le libellé est requis' }),
     amount: z.coerce.number().positive({ message: 'Le montant doit être supérieur à 0' }),
-    categoryId: z.coerce.number().min(1, { message: 'Veuillez sélectionner une catégorie' }),
+    categoryId: z.coerce.number().min(0, { message: 'Veuillez sélectionner une catégorie' }),
     date: z.string().min(1, { message: 'La date est requise' }),
   })
 );

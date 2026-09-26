@@ -35,7 +35,7 @@ const handleConfirm = () => {
 
 <template>
   <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogContent class="sm:max-w-[380px] bg-blanc dark:bg-gray-900 border border-bleu-clair dark:border-gray-800 rounded-2xl shadow-xl">
+    <DialogContent class="w-[92vw] max-w-[380px] bg-blanc dark:bg-gray-900 border border-bleu-clair dark:border-gray-800 rounded-2xl shadow-xl p-6">
       <DialogHeader>
         <DialogTitle class="font-inter font-bold text-texte dark:text-gray-100 text-base">
           {{ title }}
@@ -45,21 +45,21 @@ const handleConfirm = () => {
         </DialogDescription>
       </DialogHeader>
 
-      <DialogFooter class="pt-4 flex gap-2 justify-end">
+      <DialogFooter class="pt-4 flex flex-col-reverse sm:flex-row gap-2 justify-end">
         <AppButton 
           type="button" 
           variant="ghost" 
           @click="handleClose"
-          custom-class="text-texte dark:text-gray-300 hover:bg-bleu-clair/20"
+          custom-class="w-full sm:w-auto text-texte dark:text-gray-300 hover:bg-bleu-clair/20"
         >
           {{ cancelText || 'Annuler' }}
         </AppButton>
         <AppButton 
           type="button"
           @click="handleConfirm"
-          :custom-class="isDanger 
+          :custom-class="'w-full sm:w-auto ' + (isDanger 
             ? 'bg-red-500 text-blanc hover:bg-red-600 transition-colors' 
-            : 'bg-bleu-prin text-blanc hover:bg-bleu-fon transition-colors'"
+            : 'bg-bleu-prin text-blanc hover:bg-bleu-fon transition-colors')"
         >
           {{ confirmText || 'Confirmer' }}
         </AppButton>
