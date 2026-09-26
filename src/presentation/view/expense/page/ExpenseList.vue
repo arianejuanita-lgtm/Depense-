@@ -9,19 +9,36 @@ import AddExpense from "./AddExpense.vue";
 import DetailExpense from "./DetailExpense.vue";
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useExpense } from '../store/UseExpense';
+import type { IExpense } from '@/domain/Expenses';
 
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
 
+const editingExpenseData = ref<IExpense | null>(null);
+
 const handleOpenDetail = (id: number) => {
   selectedExpenseId.value = id;
 };
 
-// Déclenche l'affichage du détail dès que l'ajout ou la modification est validé
+const handleOpenAdd = () => {
+  editingExpenseData.value = null;
+  isAddModalOpen.value = true;
+};
+
+const handleStartEditFromDetail = (id: number) => {
+  const expenseToEdit = expenseStore.expenses.find(e => e.id === id);
+  if (expenseToEdit) {
+    selectedExpenseId.value = null; 
+    editingExpenseData.value = expenseToEdit; 
+    isAddModalOpen.value = true; 
+  }
+};
+
 const handleFormSubmitted = (expenseId: number) => {
   isAddModalOpen.value = false;
-  selectedExpenseId.value = expenseId;
+  editingExpenseData.value = null;
+  selectedExpenseId.value = expenseId; 
 };
 
 const handleConfirmExpense = (id: number) => {
@@ -48,7 +65,7 @@ const handleDeleteExpense = (id: number) => {
 
     <div class="flex items-center gap-2">
       <SearchLabelExpense />
-      <BouttonAddExpense @click="isAddModalOpen = true" />
+      <BouttonAddExpense @click="handleOpenAdd" />
     </div>
   </div>
 
@@ -57,7 +74,11 @@ const handleDeleteExpense = (id: number) => {
   </div>
 
   <AddExpense 
-    v-model:open="isAddModalOpen" 
+    v-if="isAddModalOpen"
+    :open="isAddModalOpen" 
+    @update:open="(val) => isAddModalOpen = val"
+    :initial-data="editingExpenseData"
+    :is-editing="!!editingExpenseData"
     @submit="handleFormSubmitted" 
   />
 
@@ -67,8 +88,8 @@ const handleDeleteExpense = (id: number) => {
         v-if="selectedExpenseId !== null" 
         :id="selectedExpenseId"
         @confirm="handleConfirmExpense"
-        @delete="handleDeleteExpense"
-        @edit="(id) => { selectedExpenseId = null;  }"
+        @delete="handleDeleteExpense"  
+        @edit="handleStartEditFromDetail"
       />
     </DialogContent>
   </Dialog>

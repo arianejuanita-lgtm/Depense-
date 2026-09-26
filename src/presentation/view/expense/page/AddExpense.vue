@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
@@ -30,7 +30,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void;
-  (e: 'submit', values: any): void;
+  (e: 'submit', expenseId: number): void;
 }>();
 
 const isConfirmationOpen = ref(false);
@@ -45,7 +45,7 @@ const expenseSchema = toTypedSchema(
   })
 );
 
-const initialValues = props.initialData ? {
+const initialValues = computed(() => props.initialData ? {
   label: props.initialData.label,
   amount: props.initialData.amount,
   categoryId: props.initialData.categoryId,
@@ -55,7 +55,7 @@ const initialValues = props.initialData ? {
   amount: 0,
   categoryId: 0,
   date: new Date().toISOString().split('T')[0],
-};
+});
 
 const handleClose = () => {
   emit('update:open', false);
@@ -86,10 +86,8 @@ const confirmAndSave = () => {
     emit('submit', targetId); 
   } else {
     expenseStore.addedExpense(pendingValues.value as IExpense);
-    
     const firstExpense = expenseStore.expenses[0];
     targetId = firstExpense ? firstExpense.id : 0;
-    
     emit('submit', targetId); 
   }
 
@@ -111,7 +109,14 @@ const confirmAndSave = () => {
         </DialogDescription>
       </DialogHeader>
 
-      <Form :validation-schema="expenseSchema" :initial-values="initialValues" @submit="handleFormSubmit" class="space-y-4 py-2">
+      <!-- Le v-if="open" garantit que le formulaire se recharge à neuf avec les bons initial-values à chaque ouverture -->
+      <Form 
+        v-if="open" 
+        :validation-schema="expenseSchema" 
+        :initial-values="initialValues" 
+        @submit="handleFormSubmit" 
+        class="space-y-4 py-2"
+      >
         <AppInput 
           name="label"
           label="Libellé"

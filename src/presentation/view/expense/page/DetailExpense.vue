@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Pencil, Trash2, CheckCircle2, Calendar, DollarSign, FolderTree, Tag } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { Pencil, Trash2, CheckCircle2, Calendar, DollarSign, FolderTree, Tag, Clock } from 'lucide-vue-next';
 import { useExpense } from '../store/UseExpense';
 import { useCategory } from '@/presentation/view/category/store/UseCategory';
-import { computed } from 'vue';
 import ExpenseDetailItem from '@/presentation/common/commonView/ExpenseDetailItem.vue';
 import AppButton from '@/presentation/common/commonView/AppButton.vue';
+import DialogExpense from '@/presentation/common/commonView/DialogExpense.vue';
 
 const props = defineProps<{
   id: number;
@@ -19,6 +20,8 @@ const emit = defineEmits<{
 const expenseStore = useExpense();
 const categoryStore = useCategory();
 
+const isDeleteModalOpen = ref(false);
+
 const currentExpense = computed(() => {
   return expenseStore.expenses.find(element => element.id === props.id);
 });
@@ -27,6 +30,13 @@ const currentCategory = computed(() => {
   if (!currentExpense.value) return null;
   return categoryStore.categories.find(cat => cat.id === currentExpense.value?.categoryId);
 });
+
+const confirmDelete = () => {
+  if (currentExpense.value) {
+    emit('delete', currentExpense.value.id);
+  }
+  isDeleteModalOpen.value = false;
+};
 </script>
 
 <template>
@@ -91,10 +101,11 @@ const currentCategory = computed(() => {
         >
           <Pencil class="w-4 h-4" />
         </AppButton>
+        
         <AppButton 
           type="button"
           variant="ghost"
-          @click="$emit('delete', currentExpense.id)"
+          @click="isDeleteModalOpen = true"
           custom-class="p-2.5 h-auto rounded-xl border border-red-200 dark:border-red-900/50 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
           title="Supprimer"
         >
@@ -112,6 +123,15 @@ const currentCategory = computed(() => {
         Confirmer
       </AppButton>
     </div>
+
+    <DialogExpense 
+      v-model:open="isDeleteModalOpen"
+      title="Confirmer la suppression"
+      description="Voulez-vous vraiment supprimer cette dépense ? Cette action est irréversible."
+      confirmText="Oui, supprimer"
+      cancelText="Annuler"
+      @confirm="confirmDelete"
+    />
 
   </div>
 
