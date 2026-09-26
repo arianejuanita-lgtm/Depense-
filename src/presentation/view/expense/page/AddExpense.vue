@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Form, Field, ErrorMessage, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
@@ -33,24 +33,25 @@ const emit = defineEmits<{
   (e: 'submit', expenseId: number): void;
 }>();
 
+const expenseZodSchema = z.object({
+  label: z.string().min(1, { message: 'Le libellé est requis' }),
+  amount: z.coerce.number().positive({ message: 'Le montant doit être supérieur à 0' }),
+  categoryId: z.coerce.number().min(1, { message: 'Veuillez sélectionner une catégorie' }),
+  date: z.string().min(1, { message: 'La date est requise' }),
+});
+
+const expenseSchema = toTypedSchema(expenseZodSchema);
+
+type ExpenseFormValues = z.infer<typeof expenseZodSchema>;
+
 const isConfirmationOpen = ref(false);
-const pendingValues = ref<any>(null);
+const pendingValues = ref<Omit<IExpense, 'id'> | null>(null);
 
-const expenseSchema = toTypedSchema(
-  z.object({
-    label: z.string().min(1, { message: 'Le libellé est requis' }),
-    amount: z.coerce.number().positive({ message: 'Le montant doit être supérieur à 0' }),
-    categoryId: z.coerce.number().min(1, { message: 'Veuillez sélectionner une catégorie' }),
-    date: z.string().min(1, { message: 'La date est requise' }),
-  })
-);
-
-const getValues = () => {
+const getValues = (): ExpenseFormValues => {
   if (props.isEditing && props.initialData) {
     return {
       label: props.initialData.label,
       amount: Number(props.initialData.amount),
-      // Conversion stricte en Nombre pour s'aligner avec les :value des <option>
       categoryId: props.initialData.categoryId ? Number(props.initialData.categoryId) : 0,
       date: props.initialData.date,
     };
@@ -59,7 +60,7 @@ const getValues = () => {
     label: '',
     amount: 0,
     categoryId: 0,
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString(),
   };
 };
 
@@ -82,8 +83,8 @@ const handleClose = () => {
   emit('update:open', false);
 };
 
-const handleFormSubmit = (values: any) => {
-  const finalValues = {
+const handleFormSubmit = (values: ExpenseFormValues) => {
+  const finalValues: Omit<IExpense, 'id'> = {
     ...values,
     status: props.isEditing && props.initialData ? props.initialData.status : 'UNCONFIRMED',
   };
@@ -100,13 +101,15 @@ const confirmAndSave = () => {
   if (props.isEditing && props.initialData) {
     targetId = props.initialData.id;
     const updatedValues: IExpense = {
-      ...props.initialData,
+      id: targetId,
       ...pendingValues.value,
     };
     expenseStore.updatedExpense(updatedValues);
     emit('submit', targetId); 
   } else {
-    expenseStore.addedExpense(pendingValues.value as IExpense);
+    const newExpensePayload: Omit<IExpense, 'id'> = pendingValues.value;
+    expenseStore.addedExpense(newExpensePayload as IExpense);
+    
     const firstExpense = expenseStore.expenses[0];
     targetId = firstExpense ? firstExpense.id : 0;
     emit('submit', targetId); 
@@ -134,7 +137,7 @@ const confirmAndSave = () => {
         v-if="open" 
         :validation-schema="expenseSchema" 
         :initial-values="getValues()"
-        @submit="handleFormSubmit" 
+        @submit="()=>handleFormSubmit" 
         class="space-y-4 py-2"
       >
         <AppInput 
@@ -152,7 +155,7 @@ const confirmAndSave = () => {
           :icon="DollarSign"
         />
 
-     <div class="flex flex-col gap-1 w-full">
+       <div class="flex flex-col gap-1 w-full">
           <label class="font-inter text-xs font-semibold text-texte dark:text-gray-300">Catégorie</label>
           <div class="relative flex items-center">
             <FolderTree class="absolute left-3 w-4 h-4 text-bleu-fon dark:text-gray-400 shrink-0 pointer-events-none z-10" />
