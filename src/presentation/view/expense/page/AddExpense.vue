@@ -40,9 +40,9 @@ const expenseZodSchema = z.object({
   date: z.string().min(1, { message: 'La date est requise' }),
 });
 
-const expenseSchema = toTypedSchema(expenseZodSchema);
-
 type ExpenseFormValues = z.infer<typeof expenseZodSchema>;
+
+const validationSchema = toTypedSchema(expenseZodSchema);
 
 const isConfirmationOpen = ref(false);
 const pendingValues = ref<Omit<IExpense, 'id'> | null>(null);
@@ -65,7 +65,7 @@ const getValues = (): ExpenseFormValues => {
 };
 
 const { resetForm, setValues } = useForm({
-  validationSchema: expenseSchema,
+  validationSchema,
   initialValues: getValues(),
 });
 
@@ -83,9 +83,11 @@ const handleClose = () => {
   emit('update:open', false);
 };
 
-const handleFormSubmit = (values: ExpenseFormValues) => {
+const handleFormSubmit = (values: Record<string, unknown>) => {
+  const typedValues = values as unknown as ExpenseFormValues;
+
   const finalValues: Omit<IExpense, 'id'> = {
-    ...values,
+    ...typedValues,
     status: props.isEditing && props.initialData ? props.initialData.status : 'UNCONFIRMED',
   };
   
@@ -135,9 +137,9 @@ const confirmAndSave = () => {
 
       <Form 
         v-if="open" 
-        :validation-schema="expenseSchema" 
+        :validation-schema="validationSchema" 
         :initial-values="getValues()"
-        @submit="()=>handleFormSubmit" 
+        @submit="handleFormSubmit" 
         class="space-y-4 py-2"
       >
         <AppInput 
