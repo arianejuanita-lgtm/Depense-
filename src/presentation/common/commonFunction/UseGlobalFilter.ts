@@ -2,49 +2,57 @@ import { useExpense } from "@/presentation/view/expense/store/UseExpense";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
-
 export const useGlobalFilter = defineStore('globalFilter', () => {
     const expenseStore = useExpense();
 
     const category = ref<number[]>([]);
     
-    const minAmount = ref<number | null>(null);
-    const maxAmount = ref<number | null>(null);
+    const minAmount = ref<number>(0);
+    
+    const maxAmount = ref<number>(
+        expenseStore.expenses.length > 0 
+            ? Math.max(...expenseStore.expenses.map(exp => exp.amount)) + 1 
+            : 0
+    );
 
     const label = ref<string>('');
     const date = ref<string[]>([]);
 
-   const finalExpense = computed(() => {
-    let results = expenseStore.expenses;
+    const calculatedMaxAmount = computed(() => {
+        if (expenseStore.expenses.length === 0) return 0;
+        return Math.max(...expenseStore.expenses.map(exp => exp.amount)) + 1;
+    });
 
-    if (category.value.length > 0) {
-        results = results.filter(exp => category.value.includes(exp.categoryId));
-    }
+    const finalExpense = computed(() => {
+        let results = expenseStore.expenses;
 
-    if (minAmount.value !== null && minAmount.value !== undefined) {
-        results = results.filter(exp => exp.amount >= minAmount.value!);
-    }
+        if (category.value.length > 0) {
+            results = results.filter(exp => category.value.includes(exp.categoryId));
+        }
 
-    if (maxAmount.value !== null && maxAmount.value !== undefined) {
-        results = results.filter(exp => exp.amount <= maxAmount.value!);
-    }
+        results = results.filter(exp => exp.amount >= minAmount.value);
 
-    if (label.value.trim() !== '') {
-        const searchLower = label.value.toLowerCase().trim();
-        results = results.filter(exp => exp.label.toLowerCase().includes(searchLower));
-    }
+        if (maxAmount.value !== null && maxAmount.value !== undefined) {
+            results = results.filter(exp => exp.amount <= maxAmount.value);
+        }
 
-    if (date.value.length > 0) {
-        results = results.filter(exp => date.value.includes(exp.date));
-    }
+        if (label.value.trim() !== '') {
+            const searchLower = label.value.toLowerCase().trim();
+            results = results.filter(exp => exp.label.toLowerCase().includes(searchLower));
+        }
 
-    return results;
-});
+        if (date.value.length > 0) {
+            results = results.filter(exp => date.value.includes(exp.date));
+        }
+
+        return results;
+    });
 
     return {
         category,
         minAmount,
         maxAmount,
+        calculatedMaxAmount, 
         label,
         date,
         finalExpense
