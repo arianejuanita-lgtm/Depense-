@@ -7,7 +7,7 @@ import ExpenseList from './expense/page/ExpenseList.vue';
 </script>
 
 <template>
-  <main class="min-h-screen bg-gris dark:bg-gray-900 text-texte dark:text-gray-100 font-inter sm:p-6 md:p-4 transition-colors duration-200">
+  <main class="min-h-screen  dark:bg-gray-900 text-texte dark:text-gray-100 font-inter m-2 sm:p-6 md:p-4 transition-colors duration-200">
     <div class="max-w-4xl mx-auto space-y-3 sm:space-y-3">
 
       <div class="flex items-center justify-between">
@@ -19,14 +19,14 @@ import ExpenseList from './expense/page/ExpenseList.vue';
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <div class="w-full sm:w-auto ">
-          <CategoryList />
-        </div>
-        <div class="w-full sm:w-auto flex justify-end">
-          <TotalAmount />
-        </div>
-      </div>
+      <div class="flex flex-row items-center justify-between gap-4 w-full">
+  <div>
+    <CategoryList />
+  </div>
+  <div class="flex justify-end">
+    <TotalAmount />
+  </div>
+</div>
 
       <div >
         <ExpenseList />
