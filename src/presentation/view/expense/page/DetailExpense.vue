@@ -21,6 +21,7 @@ const expenseStore = useExpense();
 const categoryStore = useCategory();
 
 const isDeleteModalOpen = ref(false);
+const isConfirmModalOpen = ref(false); 
 
 const currentExpense = computed(() => {
   return expenseStore.expenses.find(element => element.id === props.id);
@@ -36,6 +37,13 @@ const confirmDelete = () => {
     emit('delete', currentExpense.value.id);
   }
   isDeleteModalOpen.value = false;
+};
+
+const handleConfirmAction = () => {
+  if (currentExpense.value) {
+    emit('confirm', currentExpense.value.id);
+  }
+  isConfirmModalOpen.value = false;
 };
 </script>
 
@@ -116,7 +124,7 @@ const confirmDelete = () => {
       <AppButton 
         v-if="currentExpense.status === 'UNCONFIRMED'"
         type="button"
-        @click="$emit('confirm', currentExpense.id)"
+        @click="isConfirmModalOpen = true"
         custom-class="bg-bleu-prin text-blanc hover:bg-bleu-fon font-semibold text-sm shadow-sm transition-colors flex items-center gap-2"
       >
         <CheckCircle2 class="w-4 h-4" />
@@ -130,7 +138,17 @@ const confirmDelete = () => {
       description="Voulez-vous vraiment supprimer cette dépense ? Cette action est irréversible."
       confirmText="Oui, supprimer"
       cancelText="Annuler"
+      is-danger
       @confirm="confirmDelete"
+    />
+
+    <DialogExpense 
+      v-model:open="isConfirmModalOpen"
+      title="Confirmer la dépense"
+      description="En confirmant cette dépense, elle sera mise à jour au statut confirmé et retirée de la liste des dépenses en attente."
+      confirmText="Oui, confirmer"
+      cancelText="Annuler"
+      @confirm="handleConfirmAction"
     />
 
   </div>

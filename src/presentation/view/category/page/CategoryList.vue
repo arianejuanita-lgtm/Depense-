@@ -53,9 +53,17 @@ const toggleCategory = (id: number) => {
         </span>
       </button>
 
+      <!-- Overlay invisible pour fermer le menu mobile en cliquant n'importe où ailleurs -->
       <div 
         v-if="showMobileMenu" 
-        class="absolute top-12 left-0 z-50 w-64 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl p-2 flex flex-col gap-1.5 animate-fadeIn"
+        @click="showMobileMenu = false" 
+        class="fixed inset-0 z-40"
+      ></div>
+
+      <!-- Menu déroulant mobile -->
+      <div 
+        v-if="showMobileMenu" 
+        class="absolute top-12 left-0 z-50 w-72 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl p-2.5 flex flex-col gap-1.5 animate-fadeIn"
       >
         <div class="flex justify-between items-center px-2 pb-1 border-b border-gray-100">
           <span class="text-xs font-semibold text-gray-500 uppercase">Filtrer par catégorie</span>
@@ -68,7 +76,7 @@ const toggleCategory = (id: number) => {
           v-for="cat in categoriesWithTotals" 
           :key="cat.id"
           @click="toggleCategory(cat.id)"
-          class="cursor-pointer transition rounded-md p-1 hover:bg-gray-50"
+          class="cursor-pointer transition rounded-lg p-1.5 hover:bg-gray-50 w-full"
           :class="{ 'bg-blue-50 border border-blue-100': globalFilterStore.category.includes(cat.id) }"
         >
           <CategoryItem 
@@ -76,7 +84,7 @@ const toggleCategory = (id: number) => {
             :value="cat.id"
             :category="cat" 
             :amount="cat.totalAmount" 
-            class="scale-90 origin-left pointer-events-none" 
+            class="w-full [&>div]:w-full pointer-events-none" 
           />
         </div>
       </div>

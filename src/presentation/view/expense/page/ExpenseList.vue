@@ -42,11 +42,7 @@ const handleFormSubmitted = (expenseId: number) => {
 };
 
 const handleConfirmExpense = (id: number) => {
-  const exp = expenseStore.expenses.find(e => e.id === id);
-  if (exp) {
-    exp.status = 'CONFIRMED';
-    expenseStore.updatedExpense(exp);
-  }
+  expenseStore.deletedExpense(id); 
   selectedExpenseId.value = null;
 };
 
