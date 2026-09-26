@@ -74,16 +74,23 @@ const handleFormSubmit = (values: any) => {
 const confirmAndSave = () => {
   if (!pendingValues.value) return;
 
+  let targetId: number;
+
   if (props.isEditing && props.initialData) {
+    targetId = props.initialData.id;
     const updatedValues: IExpense = {
       ...props.initialData,
       ...pendingValues.value,
     };
     expenseStore.updatedExpense(updatedValues);
-    emit('submit', updatedValues);
+    emit('submit', targetId); 
   } else {
     expenseStore.addedExpense(pendingValues.value as IExpense);
-    emit('submit', pendingValues.value);
+    
+    const firstExpense = expenseStore.expenses[0];
+    targetId = firstExpense ? firstExpense.id : 0;
+    
+    emit('submit', targetId); 
   }
 
   isConfirmationOpen.value = false;

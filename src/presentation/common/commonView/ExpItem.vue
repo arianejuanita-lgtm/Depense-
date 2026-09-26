@@ -7,11 +7,17 @@ import AppButton from '@/presentation/common/commonView/AppButton.vue';
 defineProps<{
     item: IExpense;
 }>();
+
+defineEmits<{
+    (e: 'click'): void;
+}>();
 </script>
 
 <template>
-  <Card class="bg-blanc dark:bg-gray-800 border-bleu-clair h-1.5 relative flex items-center justify-center dark:border-gray-700 shadow-sm rounded-xl overflow-visible transition-all hover:shadow-md hover:border-bleu-prin group cursor-pointer">
-    
+  <Card 
+    @click="$emit('click')"
+    class="bg-blanc dark:bg-gray-800 border-bleu-clair h-1.5 relative flex items-center justify-center dark:border-gray-700 shadow-sm rounded-xl overflow-visible transition-all hover:shadow-md hover:border-bleu-prin group cursor-pointer"
+  >
     <div class="absolute inset-0 px-3 flex items-center justify-between">
       
       <div class="flex items-center gap-2 truncate">

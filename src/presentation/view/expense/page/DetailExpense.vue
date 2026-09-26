@@ -62,7 +62,7 @@ const currentCategory = computed(() => {
       <ExpenseDetailItem 
         :icon="DollarSign" 
         label="Montant" 
-        :value="`${currentExpense.amount.toLocaleString()} Fcfa`" 
+        :value="`${currentExpense.amount.toFixed(0)} Fcfa`" 
         value-class="font-bold text-lg"
       />
 
