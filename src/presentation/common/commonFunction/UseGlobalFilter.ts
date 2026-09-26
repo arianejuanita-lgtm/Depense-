@@ -55,6 +55,6 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
         calculatedMaxAmount, 
         label,
         date,
-        finalExpense
+        expenses:finalExpense
     };
 });

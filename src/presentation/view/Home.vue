@@ -28,7 +28,7 @@ import ExpenseList from './expense/page/ExpenseList.vue';
         </div>
       </div>
 
-      <div class="bg-blanc dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-bleu-clair/40 dark:border-gray-700">
+      <div >
         <ExpenseList />
       </div>
 

@@ -2,26 +2,37 @@
 import type { ICategory } from '@/domain/Category';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
-    category: ICategory ;
+    category: ICategory;
     amount: number;
     value?: number; 
 }>();
 
-const model = defineModel<number | null>();
+const model = defineModel<number[]>();
 
-const selectCategory = () => {
-    model.value = props.value ?? null;
+const toggleCategory = () => {
+    if (props.value === undefined) return;
+    
+    const currentArray = model.value ?? [];
+    const index = currentArray.indexOf(props.value);
+
+    if (index > -1) {
+        model.value = currentArray.filter(id => id !== props.value);
+    } else {
+        model.value = [...currentArray, props.value];
+    }
 };
 
-const isSelected = computed(() => model.value === props.value);
+const isSelected = computed(() => {
+    return props.value !== undefined && (model.value ?? []).includes(props.value);
+});
 </script>
 
 <template>
     <Card 
-        @click="selectCategory"
+        @click="toggleCategory"
         class="min-w-[110px] max-w-[140px] h-1 relative flex items-center justify-center shadow-sm rounded-lg overflow-visible cursor-pointer transition-all duration-200"
         :class="[
             isSelected 

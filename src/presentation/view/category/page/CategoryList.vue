@@ -21,21 +21,14 @@ const categoriesWithTotals = computed(() => {
         };
     });
 });
-
-const selectedCatId = computed({
-    get: () => globalFilterStore.category[0] || 0, 
-    set: (val) => {
-        globalFilterStore.category = val === 0 ? [] : [val];
-    }
-});
 </script>
 
 <template>
   <div class="flex gap-2 py-2 overflow-x-auto">
-       <CategoryItem 
+    <CategoryItem 
       v-for="cat in categoriesWithTotals" 
       :key="cat.id"
-      v-model="selectedCatId"
+      v-model="globalFilterStore.category"
       :value="cat.id"
       :category="cat" 
       :amount="cat.totalAmount" 
