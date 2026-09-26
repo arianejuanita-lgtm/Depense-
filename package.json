@@ -13,10 +13,11 @@
   "dependencies": {
     "@lucide/vue": "^1.48.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vueuse/core": "^15.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.4.0",
-    "lucide": "^1.48.0",
+    "lucide-vue-next": "^1.0.0",
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "reka-ui": "^2.10.5",

@@ -5,5 +5,5 @@ export const CategoryTab : ICategory[]=[
     {id:1 , label:"Transports"},
     {id:2 , label:"Loisirs"},
     {id:3 , label:"Logement"},
-    {id:5 , label:"Autre"},
+    {id:4 , label:"Autre"},
 ]

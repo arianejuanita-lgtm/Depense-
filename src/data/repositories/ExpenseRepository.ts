@@ -1,31 +1,49 @@
 import type { IExpense } from "@/domain/Expenses";
 import { ExpensesTab } from "../datasources/ExpensesTab";
 
-interface IExpenseRepository{
-    getExpenses():IExpense[];
-    // addExpenses(expense:IExpense):IExpense;
-    // udapteExpenses(expense:IExpense):IExpense;
-    deleteExpenses(id:number):void;
+interface IExpenseRepository {
+    getExpenses(): IExpense[];
+    addExpense(expense: IExpense): IExpense;
+    updateExpense(expense: IExpense): IExpense;
+    deleteExpense(id: number): void;
 }
 
-export class ExpenseRepository implements IExpenseRepository{
+export class ExpenseRepository implements IExpenseRepository {
+    private storageKey = 'app_expenses';
 
-    getExpenses(){
+    getExpenses(): IExpense[] {
+        const stored = localStorage.getItem(this.storageKey);
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        this.saveToStorage(ExpensesTab);
         return ExpensesTab;
     }
 
-    // addExpenses(expense: IExpense): IExpense {
-    //     const response= ExpensesTab.push(expense);
-    //     return response;
-    // }
+    addExpense(expense: IExpense): IExpense {
+        const expenses = this.getExpenses();
+        expenses.push(expense);
+        this.saveToStorage(expenses);
+        return expense;
+    }
 
-    // udapteExpenses(expense: IExpense): IExpense {
-        
-    // }
+    updateExpense(expense: IExpense): IExpense {
+        const expenses = this.getExpenses();
+        const index = expenses.findIndex(item => item.id === expense.id);
+        if (index !== -1) {
+            expenses[index] = expense;
+            this.saveToStorage(expenses);
+        }
+        return expense;
+    }
 
-    deleteExpenses(id: number): void {
-    ExpensesTab.filter((item)=> item.id !== id);
-   }
+    deleteExpense(id: number): void {
+        let expenses = this.getExpenses();
+        expenses = expenses.filter((item) => item.id !== id);
+        this.saveToStorage(expenses);
+    }
 
-    
+    private saveToStorage(expenses: IExpense[]): void {
+        localStorage.setItem(this.storageKey, JSON.stringify(expenses));
+    }
 }

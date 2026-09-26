@@ -4,7 +4,7 @@ export interface IExpense{
     id:number;
     label:string;
     amount:number;
-    category:string;
+    categoryId:number;
     date:string;
     status:ExpenseStatus;
 };
