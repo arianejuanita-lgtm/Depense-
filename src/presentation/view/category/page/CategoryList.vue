@@ -53,14 +53,12 @@ const toggleCategory = (id: number) => {
         </span>
       </button>
 
-      <!-- Overlay invisible pour fermer le menu mobile en cliquant n'importe où ailleurs -->
       <div 
         v-if="showMobileMenu" 
         @click="showMobileMenu = false" 
         class="fixed inset-0 z-40"
       ></div>
 
-      <!-- Menu déroulant mobile -->
       <div 
         v-if="showMobileMenu" 
         class="absolute top-12 left-0 z-50 w-72 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl p-2.5 flex flex-col gap-1.5 animate-fadeIn"
