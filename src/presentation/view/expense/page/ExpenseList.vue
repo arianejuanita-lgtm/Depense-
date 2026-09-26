@@ -53,7 +53,8 @@ const handleDeleteExpense = (id: number) => {
 </script>
 
 <template>
-  <div class="flex flex-row items-center justify-between w-full gap-4">
+  <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
+    
     <div class="flex items-center gap-2">
       <SearchDateExpense />
       <SearchAmountExpense />

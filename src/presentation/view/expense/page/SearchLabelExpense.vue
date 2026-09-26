@@ -17,7 +17,7 @@ const toggleMobileSearch = () => {
 </script>
 
 <template>
-  <div class="relative flex items-center">
+  <div class="flex items-center">
     
     <div class="flex md:hidden items-center">
       <ButtonSearch 
@@ -32,21 +32,22 @@ const toggleMobileSearch = () => {
 
       <div 
         v-if="showMobileSearch" 
-        class="absolute top-12 left-0 z-50 w-72 bg-white border border-gray-200 rounded-xl shadow-xl p-2 flex items-center gap-2 animate-fadeIn"
+        class="absolute inset-0 z-50 w-full h-full bg-white dark:bg-gray-900 flex items-center justify-between gap-2 animate-fadeIn"
       >
         <InputGroupSearch 
           v-model="globalFilterStore.label"
           placeholder="Rechercher par label..."
           autofocus
+          class="w-full flex-1"
         />
 
         <ButtonSearch 
           variant="ghost" 
           size="icon" 
           @click="toggleMobileSearch" 
-          customClass="h-8 w-8 text-gray-400 hover:text-gray-600"
+          customClass="h-9 w-9 shrink-0 text-gray-400 hover:text-gray-600"
         >
-          <X class="w-4 h-4" />
+          <X class="w-5 h-5" />
         </ButtonSearch>
       </div>
     </div>
@@ -63,8 +64,8 @@ const toggleMobileSearch = () => {
 
 <style scoped>
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 .animate-fadeIn {
   animation: fadeIn 0.15s ease-out forwards;
