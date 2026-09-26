@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { Form, Field, ErrorMessage } from 'vee-validate';
+import { ref, watch } from 'vue';
+import { Form, Field, ErrorMessage, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { Tag, DollarSign, FolderTree, Calendar } from 'lucide-vue-next';
@@ -40,22 +40,43 @@ const expenseSchema = toTypedSchema(
   z.object({
     label: z.string().min(1, { message: 'Le libellé est requis' }),
     amount: z.coerce.number().positive({ message: 'Le montant doit être supérieur à 0' }),
-    categoryId: z.coerce.number().min(0, { message: 'Veuillez sélectionner une catégorie' }),
+    categoryId: z.coerce.number().min(1, { message: 'Veuillez sélectionner une catégorie' }),
     date: z.string().min(1, { message: 'La date est requise' }),
   })
 );
 
-const initialValues = computed(() => props.initialData ? {
-  label: props.initialData.label,
-  amount: props.initialData.amount,
-  categoryId: props.initialData.categoryId,
-  date: props.initialData.date,
-} : {
-  label: '',
-  amount: 0,
-  categoryId: 0,
-  date: new Date().toISOString().split('T')[0],
+const getValues = () => {
+  if (props.isEditing && props.initialData) {
+    return {
+      label: props.initialData.label,
+      amount: Number(props.initialData.amount),
+      // Conversion stricte en Nombre pour s'aligner avec les :value des <option>
+      categoryId: props.initialData.categoryId ? Number(props.initialData.categoryId) : 0,
+      date: props.initialData.date,
+    };
+  }
+  return {
+    label: '',
+    amount: 0,
+    categoryId: 0,
+    date: new Date().toISOString().split('T')[0],
+  };
+};
+
+const { resetForm, setValues } = useForm({
+  validationSchema: expenseSchema,
+  initialValues: getValues(),
 });
+
+watch(() => [props.open, props.initialData], ([isOpen]) => {
+  if (isOpen) {
+    const newValues = getValues();
+    resetForm({
+      values: newValues,
+    });
+    setValues(newValues);
+  }
+}, { immediate: true });
 
 const handleClose = () => {
   emit('update:open', false);
@@ -109,11 +130,10 @@ const confirmAndSave = () => {
         </DialogDescription>
       </DialogHeader>
 
-      <!-- Le v-if="open" garantit que le formulaire se recharge à neuf avec les bons initial-values à chaque ouverture -->
       <Form 
         v-if="open" 
         :validation-schema="expenseSchema" 
-        :initial-values="initialValues" 
+        :initial-values="getValues()"
         @submit="handleFormSubmit" 
         class="space-y-4 py-2"
       >
@@ -132,13 +152,15 @@ const confirmAndSave = () => {
           :icon="DollarSign"
         />
 
-        <div class="flex flex-col gap-1 w-full">
+     <div class="flex flex-col gap-1 w-full">
           <label class="font-inter text-xs font-semibold text-texte dark:text-gray-300">Catégorie</label>
           <div class="relative flex items-center">
             <FolderTree class="absolute left-3 w-4 h-4 text-bleu-fon dark:text-gray-400 shrink-0 pointer-events-none z-10" />
             <Field name="categoryId" v-slot="{ field, meta }">
               <select 
-                v-bind="field"
+                :value="field.value"
+                @change="field.onChange"
+                @blur="field.onBlur"
                 class="w-full h-10 pl-9 pr-3 bg-blanc dark:bg-gray-800 border border-bleu-clair dark:border-gray-700 text-texte dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-bleu-prin rounded-xl text-sm font-inter"
                 :class="meta.touched && !meta.valid ? 'border-red-500' : ''"
               >

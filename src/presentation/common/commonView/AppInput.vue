@@ -35,7 +35,9 @@ withDefaults(defineProps<Props>(), {
 
       <Field :name="name" v-slot="{ field, meta }">
         <Input 
-          v-bind="field"
+          :model-value="field.value"
+          @update:model-value="field.onChange"
+          @blur="field.onBlur"
           :type="type"
           :placeholder="placeholder"
           class="bg-blanc dark:bg-gray-800 border-bleu-clair dark:border-gray-700 text-texte dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-bleu-prin rounded-xl h-10 text-sm font-inter"
