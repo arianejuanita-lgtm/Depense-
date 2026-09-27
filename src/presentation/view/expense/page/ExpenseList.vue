@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import ExpensiveItem from "./ExpensiveItem.vue";
 import BouttonAddExpense from "./BouttonAddExpense.vue";
 import SearchLabelExpense from "./SearchLabelExpense.vue";
-import SearchAmountExpense from "./SearchAmountExpense.vue";
+import SearchAmountExpense from './SearchAmountExpense.vue';
 import SearchDateExpense from "./SearchDateExpense.vue";
 import AddExpense from "./AddExpense.vue"; 
 import DetailExpense from "./DetailExpense.vue";

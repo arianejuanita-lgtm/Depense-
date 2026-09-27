@@ -6,6 +6,7 @@ import { useCategory } from '@/presentation/view/category/store/UseCategory';
 import ExpenseDetailItem from '@/presentation/common/commonView/ExpenseDetailItem.vue';
 import AppButton from '@/presentation/common/commonView/AppButton.vue';
 import DialogExpense from '@/presentation/common/commonView/DialogExpense.vue';
+import { formatAmount } from '@/presentation/common/commonFunction/formatters';
 
 const props = defineProps<{
   id: number;
@@ -80,7 +81,7 @@ const handleConfirmAction = () => {
       <ExpenseDetailItem 
         :icon="DollarSign" 
         label="Montant" 
-        :value="`${currentExpense.amount.toFixed(0)} Fcfa`" 
+        :value="`${formatAmount(currentExpense.amount.toFixed(0)) } Fcfa`" 
         value-class="font-bold text-lg"
       />
 

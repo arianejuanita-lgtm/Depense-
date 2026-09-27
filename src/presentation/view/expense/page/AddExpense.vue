@@ -18,6 +18,7 @@ import DialogExpense from '@/presentation/common/commonView/DialogExpense.vue';
 import { useCategory } from '@/presentation/view/category/store/UseCategory';
 import type { IExpense } from '@/domain/Expenses';
 import { useExpense } from '../store/UseExpense';
+import { formatAmount  } from '@/presentation/common/commonFunction/formatters';
 
 const expenseStore = useExpense();
 const categoryStore = useCategory();
@@ -36,7 +37,7 @@ const emit = defineEmits<{
 const expenseZodSchema = z.object({
   label: z.string().min(1, { message: 'Le libellé est requis' }),
   amount: z.coerce.number().positive({ message: 'Le montant doit être supérieur à 0' }),
-  categoryId: z.coerce.number().min(1, { message: 'Veuillez sélectionner une catégorie' }),
+  categoryId: z.coerce.number().min(0, { message: 'Veuillez sélectionner une catégorie' }),
   date: z.string().min(1, { message: 'La date est requise' }),
 });
 
@@ -64,7 +65,7 @@ const getValues = (): ExpenseFormValues => {
   };
 };
 
-const { resetForm, setValues } = useForm({
+const { resetForm, setValues, values } = useForm({
   validationSchema,
   initialValues: getValues(),
 });
@@ -83,8 +84,8 @@ const handleClose = () => {
   emit('update:open', false);
 };
 
-const handleFormSubmit = (values: Record<string, unknown>) => {
-  const typedValues = values as unknown as ExpenseFormValues;
+const handleFormSubmit = (formValues: Record<string, unknown>) => {
+  const typedValues = formValues as unknown as ExpenseFormValues;
 
   const finalValues: Omit<IExpense, 'id'> = {
     ...typedValues,
@@ -149,13 +150,18 @@ const confirmAndSave = () => {
           :icon="Tag"
         />
 
-        <AppInput 
-          name="amount"
-          label="Montant (Fcfa)"
-          type="number"
-          placeholder="0" 
-          :icon="DollarSign"
-        />
+        <div class="space-y-1">
+          <AppInput 
+            name="amount"
+            label="Montant (Fcfa)"
+            type="number"
+            placeholder="0" 
+            :icon="DollarSign"
+          />
+          <p v-if="values.amount && values.amount > 0" class="text-[11px] text-bleu-fon dark:text-gray-400 font-inter px-1">
+            Aperçu : <span class="font-semibold">{{ formatAmount(values.amount) }} Fcfa</span>
+          </p>
+        </div>
 
        <div class="flex flex-col gap-1 w-full">
           <label class="font-inter text-xs font-semibold text-texte dark:text-gray-300">Catégorie</label>
@@ -207,7 +213,7 @@ const confirmAndSave = () => {
       <DialogExpense 
         v-model:open="isConfirmationOpen"
         :title="isEditing ? 'Confirmer la modification' : 'Confirmer l\'ajout'"
-        :description="isEditing ? 'Voulez-vous vraiment enregistrer ces modifications ?' : 'Voulez-vous vraiment ajouter cette nouvelle dépense ?'"
+        :description="isEditing ? `Voulez-vous vraiment enregistrer cette dépense de ${formatAmount(pendingValues?.amount || 0)} Fcfa ?` : `Voulez-vous vraiment ajouter cette nouvelle dépense de ${formatAmount(pendingValues?.amount || 0)} Fcfa ?`"
         confirmText="Oui, valider"
         cancelText="Annuler"
         @confirm="confirmAndSave"

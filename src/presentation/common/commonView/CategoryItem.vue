@@ -3,6 +3,7 @@ import type { ICategory } from '@/domain/Category';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { computed } from 'vue';
+import { formatAmount } from '../commonFunction/formatters';
 
 const props = defineProps<{
     category: ICategory;
@@ -52,7 +53,7 @@ const isSelected = computed(() => {
                     {{ category.label }}
                 </p>
                 <p class="font-poppins font-bold text-[10px] text-bleu-fon dark:text-white truncate">
-                    {{ Number(amount).toFixed(0) }} Fcfa
+                    {{ formatAmount(amount.toFixed(0)) }} Fcfa
                 </p>
             </div>
         </div>

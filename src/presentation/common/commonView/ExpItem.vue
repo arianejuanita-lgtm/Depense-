@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-vue-next';
 import type { IExpense } from '@/domain/Expenses';
 import { Card } from '@/components/ui/card';
 import AppButton from '@/presentation/common/commonView/AppButton.vue'; 
+import { formatAmount } from '../commonFunction/formatters';
 
 defineProps<{
     item: IExpense;
@@ -25,12 +26,12 @@ defineEmits<{
           <span>{{ item.label ? item.label.charAt(0).toUpperCase() : 'C' }}</span>
         </div>
 
-        <div class="flex flex-col truncate leading-none gap-0.5">
+        <div class="flex flex-col truncate leading-none gap-1.5">
           <h3 class="font-inter text-[10px] font-bold text-texte dark:text-gray-200 truncate">
             {{ item.label }}
           </h3>
           <span class="font-poppins text-[10px] font-semibold text-bleu-fon dark:text-gray-400 truncate">
-            {{ Number(item.amount).toFixed(0) }} Fcfa
+            {{ formatAmount(item.amount.toFixed(0)) }} Fcfa
           </span>
         </div>
       </div>

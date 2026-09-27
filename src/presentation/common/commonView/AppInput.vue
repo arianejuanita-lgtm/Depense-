@@ -2,6 +2,7 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import { Input } from '@/components/ui/input';
 import type { Component } from 'vue';
+import { formatAmount } from '../commonFunction/formatters';
 
 interface Props {
     name: string; 
