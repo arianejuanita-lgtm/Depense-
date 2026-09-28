@@ -110,11 +110,7 @@ const confirmAndSave = () => {
     expenseStore.updatedExpense(updatedValues);
     emit('submit', targetId); 
   } else {
-    const newExpensePayload: Omit<IExpense, 'id'> = pendingValues.value;
-    expenseStore.addedExpense(newExpensePayload as IExpense);
-    
-    const firstExpense = expenseStore.expenses[0];
-    targetId = firstExpense ? firstExpense.id : 0;
+    targetId = expenseStore.addedExpense(pendingValues.value);
     emit('submit', targetId); 
   }
 

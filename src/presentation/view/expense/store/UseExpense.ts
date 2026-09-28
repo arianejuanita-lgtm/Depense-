@@ -11,24 +11,27 @@ export const useExpense = defineStore('expense', () => {
     const expenses = ref<IExpense[]>(expenseRepo.getExpenses());
     const selectedPeriod = ref<DatePeriod>('all');
 
-    function fetchExpenses() {
-        expenses.value = expenseRepo.getExpenses();
-    }
+function fetchExpenses() {
+    expenses.value = [...expenseRepo.getExpenses()]; 
+}
 
-    function addedExpense(expense: IExpense) {
-        expenseRepo.addExpense(expense);
-        expenses.value = expenseRepo.getExpenses();
-    }
+function addedExpense(expense: Omit<IExpense, 'id'>): number {
+    const createdExpense = expenseRepo.addExpense(expense);
+    
+    expenses.value.unshift(createdExpense);
+
+    return createdExpense.id;
+}
 
     function updatedExpense(expense: IExpense) {
         expenseRepo.updateExpense(expense);
         expenses.value = expenseRepo.getExpenses();
     }
 
-    function deletedExpense(id: number) {
-        expenseRepo.deleteExpense(id);
-        expenses.value = expenseRepo.getExpenses();
-    }
+function deletedExpense(id: number) {
+    expenseRepo.deleteExpense(id);
+    expenses.value = expenses.value.filter(item => item.id !== id); 
+}
 
     function setPeriod(period: DatePeriod) {
         selectedPeriod.value = period;

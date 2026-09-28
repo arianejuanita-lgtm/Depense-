@@ -3,7 +3,7 @@ import { ExpensesTab } from "../datasources/ExpensesTab";
 
 interface IExpenseRepository {
     getExpenses(): IExpense[];
-    addExpense(expense: IExpense): IExpense;
+    addExpense(expense: Omit<IExpense, 'id'>): IExpense; 
     updateExpense(expense: IExpense): IExpense;
     deleteExpense(id: number): void;
 }
@@ -20,11 +20,17 @@ export class ExpenseRepository implements IExpenseRepository {
         return ExpensesTab;
     }
 
-    addExpense(expense: IExpense): IExpense {
+    addExpense(expense: Omit<IExpense, 'id'>): IExpense {
         const expenses = this.getExpenses();
-        expenses.unshift(expense);
+        
+        const newExpense: IExpense = {
+            ...expense,
+            id: Date.now(), 
+        };
+
+        expenses.unshift(newExpense);
         this.saveToStorage(expenses);
-        return expense;
+        return newExpense;
     }
 
     updateExpense(expense: IExpense): IExpense {
