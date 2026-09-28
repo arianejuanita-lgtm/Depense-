@@ -27,7 +27,7 @@ const formatDisplayValue = (value: unknown): string => {
 };
 
 const parseRawValue = (value: string): number | string => {
-    if (props.name !== 'amount') return value; // Laisser les autres inputs intacts
+    if (props.name !== 'amount') return value; 
     const cleanStr = value.replace(/\./g, '');
     const num = Number(cleanStr);
     return isNaN(num) ? 0 : num;
