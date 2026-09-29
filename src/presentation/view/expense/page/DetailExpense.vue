@@ -146,7 +146,7 @@ const handleConfirmAction = () => {
     <DialogExpense 
       v-model:open="isConfirmModalOpen"
       title="Confirmer la dépense"
-      description="En confirmant cette dépense, elle sera mise à jour au statut confirmé et retirée de la liste des dépenses en attente."
+      description="En confirmant cette dépense, elle sera mise à jour au statut confirmé et retirée de la liste des dépenses en attente et sera ajoutee dans le tableau des depenses mis a jour."
       confirmText="Oui, confirmer"
       cancelText="Annuler"
       @confirm="handleConfirmAction"
