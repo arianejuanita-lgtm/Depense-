@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ExpensiveItem from "./ExpensiveItem.vue";
 import BouttonAddExpense from "./BouttonAddExpense.vue";
 import SearchLabelExpense from "./SearchLabelExpense.vue";
 import SearchDateExpense from "./SearchDateExpense.vue";
 import AddExpense from "./AddExpense.vue"; 
 import DetailExpense from "./DetailExpense.vue";
+import AppLoader from '@/presentation/common/commonView/AppLoader.vue'; 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useExpense } from '../store/UseExpense';
 import type { IExpense } from '@/domain/Expenses';
-import { onMounted } from 'vue';
 
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
@@ -62,16 +62,20 @@ const handleDeleteExpense = (id: number) => {
   selectedExpenseId.value = null;
 };
 
-
-
 onMounted(async () => {
-  isLoading.value =true;
-  await expenseStore.fetchExpenses(); 
+  try {
+    isLoading.value = true;
+    await expenseStore.fetchExpenses(); 
+  } catch (error) {
+    console.error("Erreur lors du chargement des dépenses :", error);
+  } finally {
+    isLoading.value = false; 
+  }
 });
 </script>
 
 <template>
-      <AppLoader v-if="isLoading" message="chargement..." />
+  <AppLoader :show="isLoading" message="Chargement des dépenses..." />
 
   <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
     <div class="flex items-center gap-2">
