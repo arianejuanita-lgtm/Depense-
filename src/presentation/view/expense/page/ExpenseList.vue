@@ -14,7 +14,6 @@ import type { IExpense } from '@/domain/Expenses';
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
-const isLoading = ref<boolean>(false);
 
 const editingExpenseData = ref<IExpense | null>(null);
 
@@ -62,20 +61,9 @@ const handleDeleteExpense = (id: number) => {
   selectedExpenseId.value = null;
 };
 
-onMounted(async () => {
-  try {
-    isLoading.value = true;
-    await expenseStore.fetchExpenses(); 
-  } catch (error) {
-    console.error("Erreur lors du chargement des dépenses :", error);
-  } finally {
-    isLoading.value = false; 
-  }
-});
 </script>
 
 <template>
-  <AppLoader :show="isLoading" message="Chargement des dépenses..." />
 
   <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
     <div class="flex items-center gap-2">
