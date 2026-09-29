@@ -2,11 +2,12 @@ import { useExpense, type DatePeriod } from "@/presentation/view/expense/store/U
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
+export type ExpenseStatusFilter = 'UNCONFIRMED' | 'CONFIRMED';
+
 export const useGlobalFilter = defineStore('globalFilter', () => {
     const expenseStore = useExpense();
 
     const category = ref<number[]>([]);
-    
     const minAmount = ref<number>(0);
     
     const maxAmount = ref<number>(
@@ -17,11 +18,16 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
 
     const label = ref<string>('');
     const date = ref<string[]>([]);
-    
     const selectedPeriod = ref<DatePeriod>('all');
+    
+    const statusFilter = ref<ExpenseStatusFilter>('UNCONFIRMED');
 
     function setPeriod(period: DatePeriod) {
         selectedPeriod.value = period;
+    }
+
+    function toggleStatusFilter() {
+        statusFilter.value = statusFilter.value === 'UNCONFIRMED' ? 'CONFIRMED' : 'UNCONFIRMED';
     }
 
     const calculatedMaxAmount = computed(() => {
@@ -31,6 +37,8 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
 
     const finalExpense = computed(() => {
         let results = expenseStore.expenses;
+
+        results = results.filter(exp => exp.status === statusFilter.value);
 
         if (category.value.length > 0) {
             results = results.filter(exp => category.value.includes(exp.categoryId));
@@ -88,7 +96,9 @@ export const useGlobalFilter = defineStore('globalFilter', () => {
         label,
         date,
         selectedPeriod,
+        statusFilter,          
         setPeriod,
+        toggleStatusFilter,    
         expenses: finalExpense
     };
 });
