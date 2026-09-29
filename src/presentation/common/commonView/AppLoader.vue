@@ -20,7 +20,7 @@ withDefaults(
       fullScreen ? 'fixed inset-0' : 'w-full h-full py-12'
     ]"
   >
-    <Loader2 class="w-10 h-10 text-orange-600 animate-spin" />
+    <Loader2 class="w-10 h-10 text-bleu-600 animate-spin" />
     
     <p v-if="message" class="mt-3 text-sm font-medium text-gray-600 animate-pulse">
       {{ message }}

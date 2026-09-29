@@ -14,6 +14,7 @@ import type { IExpense } from '@/domain/Expenses';
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
+const isLoading=ref<boolean>(false);
 
 const editingExpenseData = ref<IExpense | null>(null);
 
@@ -60,6 +61,23 @@ const handleDeleteExpense = (id: number) => {
   expenseStore.deletedExpense(id);
   selectedExpenseId.value = null;
 };
+
+onMounted(async () => {
+  if (!sessionStorage.getItem('has_reloaded')) {
+    sessionStorage.setItem('has_reloaded', 'true');
+    window.location.reload();
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    await expenseStore.fetchExpenses(); 
+  } catch (error) {
+    console.error("Erreur lors du chargement des dépenses :", error);
+  } finally {
+    isLoading.value = false;
+  }
+});
 
 </script>
 
