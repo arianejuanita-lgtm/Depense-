@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ArrowRight } from 'lucide-vue-next';
-import type { IExpense } from '@/domain/Expenses';
+import { Expense } from '@/domain/Expenses';
 import { Card } from '@/components/ui/card';
 import AppButton from '@/presentation/common/commonView/AppButton.vue'; 
 import { formatAmount } from '../commonFunction/formatters';
 
 defineProps<{
-    item: IExpense;
+    item: Expense;
 }>();
 
 defineEmits<{

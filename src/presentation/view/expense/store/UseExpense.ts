@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { IExpense } from "@/domain/Expenses";
+import { Expense } from "@/domain/Expenses";
 import { ExpenseRepository } from "@/data/repositories/ExpenseRepository";
 import { ref, computed } from "vue";
 
@@ -8,29 +8,48 @@ export type DatePeriod = "all" | "today" | "7days" | "30days" | "365days";
 export const useExpense = defineStore("expense", () => {
   const expenseRepo = new ExpenseRepository();
 
-  const expenses = ref<IExpense[]>(expenseRepo.getExpenses());
+  const expenses = ref<Expense[]>([]);
   const selectedPeriod = ref<DatePeriod>("all");
 
-  function fetchExpenses() {
-    expenses.value = [...expenseRepo.getExpenses()];
+  async function fetchExpenses() {
+    try {
+      expenses.value = await expenseRepo.getExpenses();
+    } catch (error) {
+      console.log("erreur lors du fetch des depenses", error);
+    }
   }
 
-  function addedExpense(expense: Omit<IExpense, "id">): number {
-    const createdExpense = expenseRepo.addExpense(expense);
-
-    expenses.value.unshift(createdExpense);
-
-    return createdExpense.id;
+  async function addedExpense(expense: Expense): Promise<number> {
+    try {
+      const created = await expenseRepo.addExpense(expense);
+      expenses.value.unshift(created);
+      return created.id;
+    } catch (error) {
+      console.log("erreurs lors de la creation d'une depense", error);
+      throw error;
+    }
   }
 
-  function updatedExpense(expense: IExpense) {
-    expenseRepo.updateExpense(expense);
-    expenses.value = expenseRepo.getExpenses();
+  async function updatedExpense(expense: Expense) {
+    try {
+      const updated = await expenseRepo.updateExpense(expense);
+      const index = expenses.value.findIndex((m) => m.id === updated.id);
+
+      if (index !== -1) {
+        expenses.value[index] = updated;
+      }
+    } catch (error) {
+      console.log("erreur de la modification", error);
+    }
   }
 
-  function deletedExpense(id: number) {
-    expenseRepo.deleteExpense(id);
-    expenses.value = expenses.value.filter((item) => item.id !== id);
+  async function deletedExpense(id: number) {
+    try {
+      await expenseRepo.deleteExpense(id);
+      expenses.value = expenses.value.filter((exp) => exp.id !== id);
+    } catch (error) {
+      console.log("erreur dans la suppression des donnees ", error);
+    }
   }
 
   function setPeriod(period: DatePeriod) {

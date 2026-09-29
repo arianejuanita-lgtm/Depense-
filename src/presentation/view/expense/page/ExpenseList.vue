@@ -9,14 +9,14 @@ import DetailExpense from "./DetailExpense.vue";
 import AppLoader from '@/presentation/common/commonView/AppLoader.vue'; 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useExpense } from '../store/UseExpense';
-import type { IExpense } from '@/domain/Expenses';
+import { Expense } from '@/domain/Expenses';
 
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
-const isLoading=ref<boolean>(false);
+const isLoading = ref<boolean>(false);
 
-const editingExpenseData = ref<IExpense | null>(null);
+const editingExpenseData = ref<Expense | null>(null);
 
 const handleOpenDetail = (id: number) => {
   selectedExpenseId.value = id;
@@ -46,9 +46,9 @@ const handleConfirmExpense = (id: number) => {
   const expenseToConfirm = expenseStore.expenses.find(exp => exp.id === id);
 
   if (expenseToConfirm) {
-    const updatedExpense = {
+    const updatedExpense: Expense = {
       ...expenseToConfirm,
-      status: 'CONFIRMED' as const,
+      status: 'CONFIRMED',
     };
 
     expenseStore.updatedExpense(updatedExpense);
@@ -78,11 +78,9 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
-
 </script>
 
 <template>
-
   <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
     <div class="flex items-center gap-2">
       <SearchDateExpense />
@@ -96,7 +94,8 @@ onMounted(async () => {
   </div>
 
   <div>
-    <ExpensiveItem @select="handleOpenDetail" />
+    <AppLoader v-if="isLoading" :show="isLoading" text="chargement"/>
+    <ExpensiveItem v-else @select="handleOpenDetail" />
   </div>
 
   <AddExpense 

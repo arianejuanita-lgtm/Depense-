@@ -16,16 +16,16 @@ import AppInput from '@/presentation/common/commonView/AppInput.vue';
 import AppButton from '@/presentation/common/commonView/AppButton.vue';
 import DialogExpense from '@/presentation/common/commonView/DialogExpense.vue';
 import { useCategory } from '@/presentation/view/category/store/UseCategory';
-import type { IExpense } from '@/domain/Expenses';
+import { Expense } from '@/domain/Expenses';
 import { useExpense } from '../store/UseExpense';
-import { formatAmount  } from '@/presentation/common/commonFunction/formatters';
+import { formatAmount } from '@/presentation/common/commonFunction/formatters';
 
 const expenseStore = useExpense();
 const categoryStore = useCategory();
 
 const props = defineProps<{
   open: boolean; 
-  initialData?: IExpense | null;
+  initialData?: Expense | null;
   isEditing?: boolean;
 }>();
 
@@ -46,7 +46,7 @@ type ExpenseFormValues = z.infer<typeof expenseZodSchema>;
 const validationSchema = toTypedSchema(expenseZodSchema);
 
 const isConfirmationOpen = ref(false);
-const pendingValues = ref<Omit<IExpense, 'id'> | null>(null);
+const pendingValues = ref<Expense | null>(null);
 
 const getValues = (): ExpenseFormValues => {
   if (props.isEditing && props.initialData) {
@@ -87,37 +87,36 @@ const handleClose = () => {
 const handleFormSubmit = (formValues: Record<string, unknown>) => {
   const typedValues = formValues as unknown as ExpenseFormValues;
 
-  const finalValues: Omit<IExpense, 'id'> = {
-    ...typedValues,
+  const finalValues = new Expense({
+    id: props.isEditing && props.initialData ? props.initialData.id : Date.now(), 
+    label: typedValues.label,
+    amount: typedValues.amount,
+    categoryId: typedValues.categoryId,
+    date: typedValues.date,
     status: props.isEditing && props.initialData ? props.initialData.status : 'UNCONFIRMED',
-  };
+  });
   
   pendingValues.value = finalValues;
   isConfirmationOpen.value = true; 
 };
 
-const confirmAndSave = () => {
+const confirmAndSave = async () => {
   if (!pendingValues.value) return;
 
-  let targetId: number;
-
   if (props.isEditing && props.initialData) {
-    targetId = props.initialData.id;
-    const updatedValues: IExpense = {
-      id: targetId,
-      ...pendingValues.value,
-    };
-    expenseStore.updatedExpense(updatedValues);
-    emit('submit', targetId); 
+    await expenseStore.updatedExpense(pendingValues.value);
+    emit('submit', pendingDataId()); 
   } else {
-    targetId = expenseStore.addedExpense(pendingValues.value);
-    emit('submit', targetId); 
+    const newId = await expenseStore.addedExpense(pendingValues.value);
+    emit('submit', newId); 
   }
 
   isConfirmationOpen.value = false;
   pendingValues.value = null;
   handleClose(); 
 };
+
+const pendingDataId = () => pendingValues.value?.id || 0;
 </script>
 
 <template>
@@ -134,6 +133,7 @@ const confirmAndSave = () => {
 
       <Form 
         v-if="open" 
+        v-slot="{}"
         :validation-schema="validationSchema" 
         :initial-values="getValues()"
         @submit="handleFormSubmit" 

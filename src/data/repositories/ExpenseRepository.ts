@@ -2,91 +2,110 @@ import { Expense } from "@/domain/Expenses";
 import { ApiUrl } from "../datasources/ApiUrl";
 
 interface IExpenseRepository {
-    getExpenses():Promise<Expense[]>;
-    addExpense(expense:Expense):Promise<Expense>; 
-    updateExpense(expense: Expense):Promise<Expense>;
-    deleteExpense(id: number): void;
+  getExpenses(): Promise<Expense[]>;
+  addExpense(expense: Expense): Promise<Expense>;
+  updateExpense(expense: Expense): Promise<Expense>;
+  deleteExpense(id: number): Promise<void>;
 }
 
 export class ExpenseRepository implements IExpenseRepository {
-    private storageKey = 'app_expenses';
- async getExpenses(): Promise<Expense[]> {
-     const response = await ApiUrl.get("");
-     const items= response.data.record.epenses;
+  private storageKey = "app_expenses";
 
-     return items.map((item : Expense)=>
-    new Expense({
-    id:item.id,
-    label:item.label,
-    amount:item.amount,
-    categoryId:item.categoryId,
-    date:item.date,
-    status:item.status
-    })
+  async getExpenses(): Promise<Expense[]> {
+    const stored = localStorage.getItem(this.storageKey);
+    let localExpenses: Expense[] = [];
+
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      localExpenses = parsed.map((item: any) => new Expense(item));
+    }
+
+    try {
+      const response = await ApiUrl.get("");
+      const items = response.data.record.epenses || [];
+      
+      const apiExpenses = items.map((item: any) => new Expense(item));
+
+      this.saveToStorage(apiExpenses);
+      
+      return apiExpenses;
+    } catch (error) {
+      console.warn("Impossible de joindre l'API, utilisation du cache local :", error);
+      return localExpenses;
+    }
+  }
+
+  async addExpense(expense: Expense): Promise<Expense> {
+    const currentExpenses = await this.getExpenses();
+    currentExpenses.unshift(expense);
+    this.saveToStorage(currentExpenses);
+
+    try {
+      const getResponse = await ApiUrl.get("");
+      const currentData = getResponse.data.record;
+      const existingExpense = currentData.epenses || [];
+      const updatedExpense = [...existingExpense, expense.toJSON()];
+
+      await ApiUrl.put("", {
+        ...currentData,
+        epenses: updatedExpense,
+      });
+    } catch (error) {
+      console.error("Erreur de synchro API lors de l'ajout :", error);
+    }
+
+    return expense;
+  }
+
+  async updateExpense(expense: Expense): Promise<Expense> {
+    let currentExpenses = await this.getExpenses();
+    currentExpenses = currentExpenses.map((item) => 
+      item.id === expense.id ? expense : item
     );
- }
+    this.saveToStorage(currentExpenses);
 
+    try {
+      const getResponse = await ApiUrl.get("");
+      const currentData = getResponse.data.record;
+      const existingExpense = currentData.epenses || [];
 
-    // getExpenses(): IExpense[] {
-    //     const stored = localStorage.getItem(this.storageKey);
-    //     if (stored) {
-    //         return JSON.parse(stored);
-    //     }
-    //     this.saveToStorage(ExpensesTab);
-    //     return ExpensesTab;
-    // }
+      const updatedExpenses = existingExpense.map((existExp: any) =>
+        existExp.id === expense.id ? expense.toJSON() : existExp
+      );
 
-
-    async addExpense(expense: Expense): Promise<Expense> {
-        const getResponse = await  
+      await ApiUrl.put("", {
+        ...currentData,
+        epenses: updatedExpenses,
+      });
+    } catch (error) {
+      console.error("Erreur de synchro API lors de la modification :", error);
     }
 
-//       async createMenuItem(menuItem: MenuItem): Promise<MenuItem> {
-    
-//     const getResponse = await apiClient.get("");
-//     const currentData = getResponse.data.record;
-//     const existingItems = currentData.menu_items || [];
-    
-//     const updatedItems = [...existingItems, menuItem.toJSON()];
-    
-//     await apiClient.put("", {
-//       ...currentData,
-//       menu_items: updatedItems
-//     });
-//     return menuItem;
-//   }
+    return expense;
+  }
 
+  async deleteExpense(id: number): Promise<void> {
+    let currentExpenses = await this.getExpenses();
+    currentExpenses = currentExpenses.filter((item) => item.id !== id);
+    this.saveToStorage(currentExpenses);
 
-    // addExpense(expense: Omit<IExpense, 'id'>): IExpense {
-    //     const expenses = this.getExpenses();
-        
-    //     const newExpense: IExpense = {
-    //         ...expense,
-    //         id: Date.now(), 
-    //     };
+    try {
+      const getResponse = await ApiUrl.get("");
+      const currentData = getResponse.data.record;
+      const existingExpense = currentData.epenses || [];
 
-    //     expenses.unshift(newExpense);
-    //     this.saveToStorage(expenses);
-    //     return newExpense;
-    // }
+      const updatedExp = existingExpense.filter((exp: any) => exp.id !== id);
 
-    updateExpense(expense: IExpense): IExpense {
-        const expenses = this.getExpenses();
-        const index = expenses.findIndex(item => item.id === expense.id);
-        if (index !== -1) {
-            expenses[index] = expense;
-            this.saveToStorage(expenses);
-        }
-        return expense;
+      await ApiUrl.put("", {
+        ...currentData,
+        epenses: updatedExp,
+      });
+    } catch (error) {
+      console.error("Erreur de synchro API lors de la suppression :", error);
     }
+  }
 
-    deleteExpense(id: number): void {
-        let expenses = this.getExpenses();
-        expenses = expenses.filter((item) => item.id !== id);
-        this.saveToStorage(expenses);
-    }
-
-    private saveToStorage(expenses: Expense[]): void {
-        localStorage.setItem(this.storageKey, JSON.stringify(expenses));
-    }
+  private saveToStorage(expenses: Expense[]): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(expenses));
+  }
 }
