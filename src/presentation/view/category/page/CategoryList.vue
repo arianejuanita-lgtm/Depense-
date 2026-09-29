@@ -1,16 +1,33 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useExpense } from "../../expense/store/UseExpense";
 import { useCategory } from "../store/UseCategory";
 import CategoryItem from "@/presentation/common/commonView/CategoryItem.vue";
 import { useGlobalFilter } from "@/presentation/common/commonFunction/UseGlobalFilter";
 import { SlidersHorizontal, X } from 'lucide-vue-next';
+import AppLoader from "@/presentation/common/commonView/AppLoader.vue";
 
 const expenseStore = useExpense();
 const categoryStore = useCategory();
 const globalFilterStore = useGlobalFilter();
 
 const showMobileMenu = ref(false);
+const isLoading = ref<boolean>(false);
+
+const loadData = async () => {
+  try {
+    isLoading.value = true;
+    await categoryStore.gettedCategories();
+  } catch (error) {
+    console.error("Erreur lors du chargement des catégories :", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadData();
+});
 
 const categoriesWithTotals = computed(() => {
     return categoryStore.categories.map(category => {
@@ -40,7 +57,9 @@ const toggleCategory = (id: number) => {
 </script>
 
 <template>
+  <AppLoader :show="isLoading" text="Chargement des categories..." />
   <div class="relative">
+
     <div class="flex md:hidden items-center">
       <button 
         @click="showMobileMenu = !showMobileMenu"

@@ -1,15 +1,19 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import {CategororyRepository } from "@/data/repositories/CategoryRepository"; 
-import type { ICategory } from "@/domain/Category";
+import { Category } from "@/domain/Category";
 
 export const useCategory = defineStore('category', () => {
     const categoryRepo = new CategororyRepository();
     
-    const categories = ref<ICategory[]>(categoryRepo.getCategory()); 
+    const categories = ref<Category[]>([]); 
 
-    function gettedCategories() {
-        categories.value = categoryRepo.getCategory();
+    async function gettedCategories() {
+        try {
+            categories.value = await categoryRepo.getCategory()
+        } catch (error) {
+            console.log("error :", error);
+        }
     }
 
     return {

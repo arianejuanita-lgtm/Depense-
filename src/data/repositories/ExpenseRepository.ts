@@ -1,37 +1,74 @@
-import type { IExpense } from "@/domain/Expenses";
-import { ExpensesTab } from "../datasources/ExpensesTab";
+import { Expense } from "@/domain/Expenses";
+import { ApiUrl } from "../datasources/ApiUrl";
 
 interface IExpenseRepository {
-    getExpenses(): IExpense[];
-    addExpense(expense: Omit<IExpense, 'id'>): IExpense; 
-    updateExpense(expense: IExpense): IExpense;
+    getExpenses():Promise<Expense[]>;
+    addExpense(expense:Expense):Promise<Expense>; 
+    updateExpense(expense: Expense):Promise<Expense>;
     deleteExpense(id: number): void;
 }
 
 export class ExpenseRepository implements IExpenseRepository {
     private storageKey = 'app_expenses';
+ async getExpenses(): Promise<Expense[]> {
+     const response = await ApiUrl.get("");
+     const items= response.data.record.epenses;
 
-    getExpenses(): IExpense[] {
-        const stored = localStorage.getItem(this.storageKey);
-        if (stored) {
-            return JSON.parse(stored);
-        }
-        this.saveToStorage(ExpensesTab);
-        return ExpensesTab;
+     return items.map((item : Expense)=>
+    new Expense({
+    id:item.id,
+    label:item.label,
+    amount:item.amount,
+    categoryId:item.categoryId,
+    date:item.date,
+    status:item.status
+    })
+    );
+ }
+
+
+    // getExpenses(): IExpense[] {
+    //     const stored = localStorage.getItem(this.storageKey);
+    //     if (stored) {
+    //         return JSON.parse(stored);
+    //     }
+    //     this.saveToStorage(ExpensesTab);
+    //     return ExpensesTab;
+    // }
+
+
+    async addExpense(expense: Expense): Promise<Expense> {
+        const getResponse = await  
     }
 
-    addExpense(expense: Omit<IExpense, 'id'>): IExpense {
-        const expenses = this.getExpenses();
+//       async createMenuItem(menuItem: MenuItem): Promise<MenuItem> {
+    
+//     const getResponse = await apiClient.get("");
+//     const currentData = getResponse.data.record;
+//     const existingItems = currentData.menu_items || [];
+    
+//     const updatedItems = [...existingItems, menuItem.toJSON()];
+    
+//     await apiClient.put("", {
+//       ...currentData,
+//       menu_items: updatedItems
+//     });
+//     return menuItem;
+//   }
+
+
+    // addExpense(expense: Omit<IExpense, 'id'>): IExpense {
+    //     const expenses = this.getExpenses();
         
-        const newExpense: IExpense = {
-            ...expense,
-            id: Date.now(), 
-        };
+    //     const newExpense: IExpense = {
+    //         ...expense,
+    //         id: Date.now(), 
+    //     };
 
-        expenses.unshift(newExpense);
-        this.saveToStorage(expenses);
-        return newExpense;
-    }
+    //     expenses.unshift(newExpense);
+    //     this.saveToStorage(expenses);
+    //     return newExpense;
+    // }
 
     updateExpense(expense: IExpense): IExpense {
         const expenses = this.getExpenses();
@@ -49,7 +86,7 @@ export class ExpenseRepository implements IExpenseRepository {
         this.saveToStorage(expenses);
     }
 
-    private saveToStorage(expenses: IExpense[]): void {
+    private saveToStorage(expenses: Expense[]): void {
         localStorage.setItem(this.storageKey, JSON.stringify(expenses));
     }
 }

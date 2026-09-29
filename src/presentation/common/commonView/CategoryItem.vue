@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ICategory } from '@/domain/Category';
+import { Category } from '@/domain/Category';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { computed } from 'vue';
 import { formatAmount } from '../commonFunction/formatters';
 
 const props = defineProps<{
-    category: ICategory;
+    category: Category;
     amount: number;
     value?: number; 
 }>();
