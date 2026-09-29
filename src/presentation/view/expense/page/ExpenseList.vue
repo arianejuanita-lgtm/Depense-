@@ -9,10 +9,12 @@ import DetailExpense from "./DetailExpense.vue";
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useExpense } from '../store/UseExpense';
 import type { IExpense } from '@/domain/Expenses';
+import { onMounted } from 'vue';
 
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
+const isLoading = ref<boolean>(false);
 
 const editingExpenseData = ref<IExpense | null>(null);
 
@@ -59,11 +61,19 @@ const handleDeleteExpense = (id: number) => {
   expenseStore.deletedExpense(id);
   selectedExpenseId.value = null;
 };
+
+
+
+onMounted(async () => {
+  isLoading.value =true;
+  await expenseStore.fetchExpenses(); 
+});
 </script>
 
 <template>
+      <AppLoader v-if="isLoading" message="chargement..." />
+
   <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
-    
     <div class="flex items-center gap-2">
       <SearchDateExpense />
       <SearchAmountExpense />
