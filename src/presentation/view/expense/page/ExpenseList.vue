@@ -14,7 +14,7 @@ import { Expense } from '@/domain/Expenses';
 const expenseStore = useExpense();
 const isAddModalOpen = ref(false);
 const selectedExpenseId = ref<number | null>(null);
-const isLoading = ref<boolean>(false);
+const isLoading = ref<boolean>(true);
 
 const editingExpenseData = ref<Expense | null>(null);
 
@@ -46,10 +46,10 @@ const handleConfirmExpense = (id: number) => {
   const expenseToConfirm = expenseStore.expenses.find(exp => exp.id === id);
 
   if (expenseToConfirm) {
-    const updatedExpense: Expense = {
+    const updatedExpense = new Expense({
       ...expenseToConfirm,
       status: 'CONFIRMED',
-    };
+    });
 
     expenseStore.updatedExpense(updatedExpense);
   }
@@ -63,12 +63,6 @@ const handleDeleteExpense = (id: number) => {
 };
 
 onMounted(async () => {
-  if (!sessionStorage.getItem('has_reloaded')) {
-    sessionStorage.setItem('has_reloaded', 'true');
-    window.location.reload();
-    return;
-  }
-
   try {
     isLoading.value = true;
     await expenseStore.fetchExpenses(); 
@@ -81,41 +75,43 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
-    <div class="flex items-center gap-2">
-      <SearchDateExpense />
-      <SearchAmountExpense />
+  <div class="space-y-4">
+    <div class="relative flex flex-row items-center justify-between w-full gap-4 min-h-[40px]">
+      <div class="flex items-center gap-2">
+        <SearchDateExpense />
+      </div>
+
+      <div class="flex items-center gap-2">
+        <SearchLabelExpense />
+        <BouttonAddExpense @click="handleOpenAdd" />
+      </div>
     </div>
 
-    <div class="flex items-center gap-2">
-      <SearchLabelExpense />
-      <BouttonAddExpense @click="handleOpenAdd" />
+    <div>
+      <ExpensiveItem @select="handleOpenDetail" />
     </div>
+
+    <AppLoader :show="isLoading" text="Chargement des dépenses..." />
+
+    <AddExpense 
+      v-if="isAddModalOpen"
+      :open="isAddModalOpen" 
+      @update:open="(val) => isAddModalOpen = val"
+      :initial-data="editingExpenseData"
+      :is-editing="!!editingExpenseData"
+      @submit="handleFormSubmitted" 
+    />
+
+    <Dialog :open="selectedExpenseId !== null" @update:open="(val) => !val && (selectedExpenseId = null)">
+      <DialogContent class="w-[92vw] max-w-md bg-transparent border-none shadow-none p-0">
+        <DetailExpense 
+          v-if="selectedExpenseId !== null" 
+          :id="selectedExpenseId"
+          @confirm="handleConfirmExpense"
+          @delete="handleDeleteExpense"  
+          @edit="handleStartEditFromDetail"
+        />
+      </DialogContent>
+    </Dialog>
   </div>
-
-  <div>
-    <AppLoader v-if="isLoading" :show="isLoading" text="chargement"/>
-    <ExpensiveItem v-else @select="handleOpenDetail" />
-  </div>
-
-  <AddExpense 
-    v-if="isAddModalOpen"
-    :open="isAddModalOpen" 
-    @update:open="(val) => isAddModalOpen = val"
-    :initial-data="editingExpenseData"
-    :is-editing="!!editingExpenseData"
-    @submit="handleFormSubmitted" 
-  />
-
-  <Dialog :open="selectedExpenseId !== null" @update:open="(val) => !val && (selectedExpenseId = null)">
-    <DialogContent class="w-[92vw] max-w-md bg-transparent border-none shadow-none p-0">
-      <DetailExpense 
-        v-if="selectedExpenseId !== null" 
-        :id="selectedExpenseId"
-        @confirm="handleConfirmExpense"
-        @delete="handleDeleteExpense"  
-        @edit="handleStartEditFromDetail"
-      />
-    </DialogContent>
-  </Dialog>
 </template>

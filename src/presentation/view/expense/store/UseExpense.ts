@@ -14,6 +14,7 @@ export const useExpense = defineStore("expense", () => {
   async function fetchExpenses() {
     try {
       expenses.value = await expenseRepo.getExpenses();
+      console.log('tableau des depenses', expenses.value);
     } catch (error) {
       console.log("erreur lors du fetch des depenses", error);
     }

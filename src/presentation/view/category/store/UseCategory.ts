@@ -10,7 +10,8 @@ export const useCategory = defineStore('category', () => {
 
     async function gettedCategories() {
         try {
-            categories.value = await categoryRepo.getCategory()
+            categories.value = await categoryRepo.getCategory();
+            console.log("tableau des categories", categories.value);
         } catch (error) {
             console.log("error :", error);
         }

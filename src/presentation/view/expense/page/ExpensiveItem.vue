@@ -2,6 +2,7 @@
 import { useGlobalFilter } from '@/presentation/common/commonFunction/UseGlobalFilter';
 import ExpItem from '@/presentation/common/commonView/ExpItem.vue';
 
+
 defineEmits<{
     (e: 'select', id: number): void;
 }>();
@@ -14,6 +15,7 @@ const globalFilterStore = useGlobalFilter();
         
         <div v-for="exp in globalFilterStore.expenses" :key="exp.id">
            <ExpItem :item="exp" @click="$emit('select', exp.id)" /> 
+
         </div>
     </div>
 </template>
